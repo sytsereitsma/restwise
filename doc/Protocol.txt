@@ -1,0 +1,331 @@
+A partly protocol description:
+
+Serial port settings
+The serial port settings used to connect to the plugwise stick (USB) are the following:
+
+- Baud rate: 115200
+- Data bits: 8
+- Stop bits: 1
+- Parity: none
+
+Packet header
+Every command send to the plugwise stick must have a valid packet header.
+
+Example packet header:
+
+<code>
+<ENQ><ENQ><ETX><ETX>
+</code>
+
+The hexadecimal representation of the above is:
+<code>
+\x05\x05\x03\x03
+</code>
+
+Packet end
+Every command send must be ended by a control feed followed by a linefeed.
+
+Example packet end:
+<code>
+<CR><LF>
+</code>
+
+The hexadecimal representation of the above is:
+<code>
+\x0d\x0a
+</code>
+
+Analyzing the on/off packet
+In this part I analyze the on/off packet.
+Because examples say more then a thousand words, here's an example of an ON packet:
+<code>
+<ENQ><ENQ><ETX><ETX>0017000A1100003111AB01AC92<CR><LF>
+</code>
+
+The first 4 characters represent a function code, in this case it's the on/off function represented by the "0017" characters.
+
+Followed by the function code is the mac address of your device. In this example the mac address is: 00A1100003111AB
+
+Then followed by the mac address is the function value, in this case it's 01. 01 in this function represents "ON". If it stated "00" it would have meant "OFF"
+
+Last but not least, the toughest nut to crack. The last value, in this case the 4 characters "AC92" is a CRC16 value.
+For more information about CRC please see the following wikipedia article:
+
+http://en.wikipedia.org/wiki/Cyclic_redundancy_check
+
+The CRC16 value is calculated over the following parts of the packet:
+  - Function code
+  - MAC address
+  - Function value/new state
+
+In this example the CRC16 value is calculated over the following string:
+<code>
+0017000A1100003111AB01
+</code>
+
+The CRC checksum used is not a standard one, it has the following properties (in some documents refered to as the xmodem or ymodem CRC):
+
+  - Polynomial: 0x11021
+  - Seed value: 0x00000
+  - Xor mask: 0x00000
+  - Width: 16
+
+
+Power measurement:
+
+Calibration
+
+Each plugwise plug has some calibration information. This information can be found in the plugwise access database (PlugwiseData.mdb)
+The values containing calibration information are the following:
+
+- OffRuis
+- OffTot
+- GainA
+- GainB
+
+You can also query the information from the plug itself using the stick.
+
+Let's analyze a calibration request:
+
+<ENQ><ENQ><ETX><ETX>002600A1100003111AB7071<CR><LF>
+
+
+
+The first 4 characters represent the function code, in this case it's the "0026" command for the calibration request.
+The next characters represent the mac address of the plug, in this case "00A1100003111AB"
+The last 4 characters are the CRC16 code, for an explanation of this see my earlier post.
+
+Let's analyze the calibration response:
+
+<ENQ><ENQ><ETX><ETX>0027 00A1100003111AB 3F78BD69 B6FF0876 3CA99962 00000000 EE6D<CR><LF>
+
+
+
+Note: the spaces have been included for readability.
+
+The first 4 characters represent the function code, in this case calibration response.
+The next string is the mac address.
+Now for the interesting part:
+
+- 3F78BD69 represents the GainA value hexadecimal.
+- B6FF0876 represents the GainB value hexadecimal.
+- 3CA99962 represents the OffTot value hexadecimal.
+- 00000000 represents the OffRuis value hexadecimal.
+- The last code is (i think) a CRC16 code again, not sure about this one.
+
+I use a function like this in python to convert the hexadecimal values to a "human readable" float or double:
+
+def hexToFloat(self, hexstr):
+        intval = int(hexstr, 16)
+        bits = struct.pack('L', intval)
+        return struct.unpack('f', bits)[0]
+
+
+
+The calibration information is used for a correct reading of the watt usage.
+
+Power information
+
+Power information is read by using the following command:
+
+<ENQ><ENQ><ETX><ETX>0012 00A1100003111AB AB43<CR><LF>
+
+
+
+It needs no explanation that the function code is "0012" the mac adress is the next string etc.
+
+The powerinfo response looks like this:
+
+<ENQ><ENQ><ETX><ETX>0013 00A1100003111AB 0030 0030 0001D62A 9863<CR><LF>
+
+
+
+The first two parts of this need no explanation.
+The following explains the codes followed by that:
+
+- 0030 pulse information of 8 seconds reading.
+- 0030 pulse information of 1 second reading.
+- 0001D62A yet unknown, still trying to figure out.
+
+The pulse information is again hexadecimal. To convert it to a integer I use the following python code:
+
+def hexToInt(self, hexstr):
+        return int(hexstr, 16)
+
+
+
+How to get the watt I hear you asking?
+First the pulse information has to be corrected based on the calibration information of the plug, that's done using the following formula:
+
+1.0 * (((pow(value + offruis, 2.0) * gain_b) + ((value + offruis) * gain_a)) + offtot)
+
+Where value is the number of pulses in integer format. pow() is a python for the mathematical power.
+
+If the pulse information has been corrected based upon the calibration information you can go to KWH using the following formula:
+
+(pulses / 1) / 468.9385193
+
+Where pulses is the number of pulses offcourse.
+
+To go to watt you'll simply have to do multiply by 1000.
+
+Long story, I hope it's clear enough.
+
+As promised I would publish some information about the power buffers.
+
+Circle information request
+
+You can read some information about the plugwise device, some values are unknown. But, I already want to share this because it's needed for power buffer reading.
+
+Let's analyze the information request:
+
+0023000D6F00002366BB231B
+
+
+
+- The first 4 bits represent the function code, which is in this case "0023"
+- The next 16 bits represent the MAC address of the device, which is in this case "000D6F00002366BB"
+- The last 4 bits represent the CRC16 checksum value, in this case "231B"
+
+Let's analyze the information response:
+
+0024 000D6F00002366BB00003681 000457C8 01 8500000473000748B4253801F74D
+
+
+
+Note: the spaces have been included for readability.
+
+The first 4 characters represent the function code, in this case information response.
+The next string is the mac address.
+Now for the interesting part:
+
+- 000457C8 represents the last logaddress value hexadecimal. This logaddress is used for power buffer information.
+To get the logaddress in nice decimal format, do the following:
+
+1) Convert the hexadecimal value to integer.
+2) Substract 278528 from the outcome.
+3) Divide that outcome by 32.
+
+The result will be the latest log address of the power buffers.
+
+My calculation looks like this:
+
+
+(self.hexToInt(data) - 278528) / 32
+
+
+
+These logaddresses are also visible in the plugwise database.
+
+- 01 represents the current relay state of the device (01=ON, 00=OFF)
+
+The other values are yet unknown. Also because I wasn't interested in these values yet.
+
+Power buffer information
+
+The circle's hold an internal buffer of power usage. This way you can safely close the source software and read that information later on. I have succeeded in reading this without using the source.
+
+Let's analyze the power buffer request:
+
+0048 000D6F0000236317 00045640 439B
+
+
+
+- The first 4 bits represent the function code, which is in this case "0048"
+- The next 16 bits represent the MAC address of the device, which is in this case "000D6F0000236317"
+- The next 8 bits represent the log address of the power buffer you want to fetch, remember we read the latest buffer address with the information request? You can use this to determine the buffers you are missing in your program, for example if the latest log address is 160 and the last processed buffer in your program is 150 you are missing 10 buffers starting from 150 (so you would do a read request here for 151, 152 etc.)
+The log address requires some ca****ation (again) In this case the log address is:
+
+- 00045640 to decimal 284224
+- 284224 - 278528
+- 5696 / 32 = 178
+
+So the log address is 178.
+
+To calculate the hexadecimal for a log address one would just reverse the formula:
+
+The log address is 178.
+278528 + (32 * 178) = 284224
+
+Converting this to hexadecimal is: 00045640
+
+- The last 4 bits represent the CRC16 checksum value, in this case "439B"
+
+Let's analyze the power buffer response:
+
+0049 000D6F0000236317 000036B1 0000ABAA 000036B2 0000AB72 000036B3 0000AB66 000036B4 0000ABAD 00045620 758F
+
+
+
+This is a huge one
+
+- The first 4 bits represent the function code, which is in this case "0049"
+- The next 16 bits represent the MAC address of the device, which is in this case "000D6F0000236317"
+- The next 8 bits represent the hour of the first buffer in abshour format (got this name from the access database :-)) more about this abshour format later.
+- The next 8 bits represent the usage in pulses for the first hour.
+- The next 8 bits represent the hour of the second buffer in abshour format (got this name from the access database :-)) more about this abshour format later.
+- The next 8 bits represent the usage in pulses for the second hour.
+- The next 8 bits represent the hour of the third buffer in abshour format (got this name from the access database :-)) more about this abshour format later.
+- The next 8 bits represent the usage in pulses for the third hour.
+- The next 8 bits represent the hour of the fourth buffer in abshour format (got this name from the access database :-)) more about this abshour format later.
+- The next 8 bits represent the usage in pulses for the fourth hour.
+- The next 8 bits represent logaddress of the buffer, this is the same log address as explained before.
+- The last 4 bits represent the CRC16 checksum value, in this case "758F"
+
+The abshour format
+Let's pick the first buffer address as example: 000036B1
+The decimal value of this abshour value is 14001
+
+This value was a real brain cracker, after comparing the values I figured out the following.
+For illustration let's convert the next abshour value (000036B2) to decimal: 14002
+
+Aha! It increases by one all the time, so there must be a constant in these values. Then I substracted this value as hours from the current date (as it states abshour I was figuring it had something to do with hoours) this brought me to the following date:
+
+1-6-2007
+
+So if you add the number of hours to that date you'll get the datetime of that buffer.
+Example in python:
+
+>>> import datetime
+>>> timestart = datetime.datetime(2007, 6, 1, 2)
+>>> dif = datetime.timedelta(hours=14001)
+>>> datetime = timestart + dif
+>>> datetime
+datetime.datetime(2009, 1, 4, 11, 0)
+
+
+So the date and time of this buffer request is:
+4-1-2009 11:00
+
+The pulses
+I have explained these pulses before in a post. The pulses here are exactly the same pulses, however there is one difference.
+The formula must be changed from:
+
+1.0 * (((pow(value + offruis, 2.0) * gain_b) + ((value + offruis) * gain_a)) + offtot)
+
+To:
+
+3600 * (((pow(value + offruis, 2.0) * gain_b) + ((value + offruis) * gain_a)) + offtot)
+
+Also you need to divide the pulses value by 3600.
+This is needed because the pulses are now logged for an entire hour rather then a second.
+I use a generic function now for the pulsecorrection:
+
+
+    def PulseCorrection(self, pulses, id, timespan):
+        """
+        Corrects plugwise pulses using calibration information from plug.
+        """
+        device = Device.get(int(id))
+        value = pulses / timespan;
+        out = timespan * (((pow(value + device.extension.offruis, 2.0) *\
+        device.extension.gainb) + ((value + device.extension.offruis) * \
+        device.extension.gaina)) + device.extension.offtot)
+        return out
+
+Phew.. this is gotten a really long post, I hope it's clear enough and that it's usefull for you. If you have any questions don't hesitate to ask.
+
+--
+Maarten Damen
+
+www.maartendamen.com
