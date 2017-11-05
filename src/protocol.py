@@ -116,10 +116,16 @@ _KNOWN_PACKETS = {
     b"0011": StickStatus
 }
 
+
 class Parser:
     def __init__(self):
         self.__buffer = bytes()
         self.__packets = []
+
+    def reset(self):
+        data = self.__buffer
+        self.__buffer = bytes()
+        return data
 
     @property
     def packets(self):

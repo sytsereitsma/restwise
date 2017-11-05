@@ -32,7 +32,11 @@ def get_data(line):
 
 def convert_file(filename):
     command_list = []
+
+    print("\nProcessing " + filename)
     log_file = open(filename, "rt")
+    prev_read = False
+
     for line in log_file:
         try:
             fmt = ""
@@ -43,17 +47,23 @@ def convert_file(filename):
 
             if fmt:
                 data = get_data(line)
+
                 for d in data:
-                    header_index = d.find(b"\05\05\03\03")
-                    if header_index != -1:
-                        command_list.append(int(d[header_index + 4:header_index + 8], 16))
                     print(fmt.format(d))
+                    if "IRP_MJ_WRITE" in line:
+                        header_index = d.find(b"\05\05\03\03")
+                        if header_index != -1:
+                            command_list.append(int(d[header_index + 4:header_index + 8], 16))
         except Exception as e:
-            print(e)
-            print(line)
-    command_list = set(command_list)
-    for cmd in command_list:
-        print("{:04X}".format(cmd))
+                print(e)
+                print(line)
+
+    if command_list:
+        print("\nWRITTEN COMMAND IDs")
+        command_list = set(command_list)
+        for cmd in command_list:
+            print("{:04X}".format(cmd))
+
 
 def convert(pattern):
     files = glob.glob(pattern)
