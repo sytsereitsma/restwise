@@ -43,7 +43,7 @@ Response data:
 
 
 ---
-###Command 0x0007
+### Command 0x0007
 Description: Associate endpoint (connect to device)
 
 Payload data:
@@ -64,7 +64,7 @@ Oddly enough there is no actual command response to this command. Command 00x23 
 
 
 ---
-###Command 0x0008
+### Command 0x0008
 Description: Unknown (get Circle+ MAC?)
 
 Payload data:
@@ -99,7 +99,7 @@ Response data:
 
 
 ---
-###Command 0x0009
+### Command 0x0009
 Description: Disassociate endpoint?
 
 Payload data:
@@ -128,7 +128,7 @@ Response data:
 
 
 ---
-###Command 0x000A (from plugwise unleashed)
+### Command 0x000A (from plugwise unleashed)
 Description: Init/Reset the stick
 
 No data
@@ -155,7 +155,7 @@ Response data:
 
 
 ---
-###Command 0x0012 (from plugwise unleashed)
+### Command 0x0012 (from plugwise unleashed)
 Description: Power information request (current power usage measurement)
 
 Payload data:
@@ -213,7 +213,7 @@ def pulsetokwh(pulses):
 ```
 
 ---
-###Command 0x0016
+### Command 0x0016
 Description: Unknown
 
 Payload data:
@@ -238,7 +238,7 @@ Response data:
 
 
 ---
-###Command 0x0018
+### Command 0x0018
 Description: Get endpoint MAC
 
 Payload data:
@@ -275,7 +275,8 @@ Response data
 
 
 ---
-###Command 0x001C
+
+### Command 0x001C
 Description: Remove endpoint from Circle+/Stick registered nodes list.
 
 Payload data:
@@ -306,7 +307,7 @@ Response data:
 
 
 ---
-###Command 0x0023 (from plugwise unleashed)
+### Command 0x0023 (from plugwise unleashed)
 Description: Device information request
 
 Payload data:
@@ -404,7 +405,7 @@ def deviceinforesponse(self, response):
 ```
 
 ---
-###Command 0x0026 (from plugwise unleashed)
+### Command 0x0026 (from plugwise unleashed)
 Description: Retrieve circle(+) calibration data
 
 Payload data:
@@ -434,7 +435,7 @@ Response data:
 
 
 ---
-###Command 0x0028
+### Command 0x0028
 Description: Unknown
 
 Example
@@ -445,7 +446,7 @@ Receive \x05\x05\x03\x030000017200DF000D6F0001A5A372A65C\r\n
 ```
 
 ---
-###Command 0x0029
+### Command 0x0029
 Description: Unknown (has something to do with the Circle+)
 
 Payload data:
@@ -472,7 +473,7 @@ Response data (assuming build info):
 
 
 ---
-###Command 0x003E
+### Command 0x003E
 Description: Unknown
 
 Payload data:
@@ -499,7 +500,7 @@ Response data:
 
 
 ---
-###Command 0x0040
+### Command 0x0040
 Description: Unknown
 
 Example:
@@ -510,7 +511,7 @@ Receive \x05\x05\x03\x03000000FF00E5000D6F0001A402238EE1\r\n
 ```
 
 ---
-###Command 0x0048 (from plugwise unleashed)
+### Command 0x0048 (from plugwise unleashed)
 Description: Read power buffer information
 
 Payload data:
@@ -561,7 +562,7 @@ def clockinfotodatetime(self, year, month, minutes):
 
 
 ---
-###Command 0x004A
+### Command 0x004A
 Description: Unknown
 
 Example:
@@ -574,7 +575,7 @@ Receive \x05\x05\x03\x030000017300F1000D6F0001A5A372AB40\r\n
 
 
 ---
-###Command 0x0058
+### Command 0x0058
 Description: Unknown
 
 Example:
@@ -586,7 +587,7 @@ Receive \x05\x05\x03\x030000019200F9000D6F0001A20F97C8B3\r\n
 
 
 ---
-###Command 0x005F
+### Command 0x005F
 Description: Unknown
 
 Example:
