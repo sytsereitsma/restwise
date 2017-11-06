@@ -28,6 +28,7 @@ Receive \x05\x05\x03\x030000017E00C11A4D\r\n
 ```
 
 Response data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint16|Response 'command' code', always 0000|0000|
@@ -44,6 +45,7 @@ Response data:
 ---
 ###Command 0x0007
 Description: Associate endpoint (connect to device)
+
 Payload data:
 
 |Type|Description|Data in example|
@@ -64,6 +66,7 @@ Oddly enough there is no actual command response to this command. Command 00x23 
 ---
 ###Command 0x0008
 Description: Unknown (get Circle+ MAC?)
+
 Payload data:
 
 |Type|Description|Data in example|
@@ -86,6 +89,7 @@ Receive \x05\x05\x03\x03000000EA00DD000D6F0001A5A372CDA9\r\n
 ```
 
 Response data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint16|Command response code|0000|
@@ -97,6 +101,7 @@ Response data:
 ---
 ###Command 0x0009
 Description: Disassociate endpoint?
+
 Payload data:
 |Type|Description|Data in example|
 |--|--|--|
@@ -113,6 +118,7 @@ Receive \x05\x05\x03\x03000000BD00F2000D6F0001A400E20F3E\r\n
 ```
 
 Response data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint16|Command response code|0000|
@@ -124,6 +130,7 @@ Response data:
 ---
 ###Command 0x000A (from plugwise unleashed)
 Description: Init/Reset the stick
+
 No data
 
 Example:
@@ -134,6 +141,7 @@ Receive  \x05\x05\x03\x03001100E7000D6F0001A59EDC0101FD0D6F0001A5A37234FDFF9418\
 ```
 
 Response data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint16|Command response code|0011|
@@ -149,7 +157,9 @@ Response data:
 ---
 ###Command 0x0012 (from plugwise unleashed)
 Description: Power information request (current power usage measurement)
+
 Payload data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint64|Endpoint MAC|000D6F0001A20F97|
@@ -162,6 +172,7 @@ Receive \x05\x05\x03\x03001300F2000D6F0001A20F97000200140000245700000000000FED46
 ```
 
 Response data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint16|Command response code|0013|
@@ -204,7 +215,9 @@ def pulsetokwh(pulses):
 ---
 ###Command 0x0016
 Description: Unknown
+
 Payload data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint64|Circle+ MAC address|000D6F0001A5A372|
@@ -217,6 +230,7 @@ Receive \x05\x05\x03\x030000017000C1249C\r\n
 Receive \x05\x05\x03\x030000017000D7000D6F0001A5A3725774\r\n
 ```
 Response data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint16|Unknown|00D7|
@@ -226,7 +240,9 @@ Response data:
 ---
 ###Command 0x0018
 Description: Get endpoint MAC
+
 Payload data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint64|Circle+ MAC address|000D6F0001A5A372|
@@ -248,6 +264,7 @@ Receive \x05\x05\x03\x0300190149000D6F0001A5A372FFFFFFFFFFFFFFFF1B0918\r\n
 ```
 
 Response data
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint16|Command response code|0019|
@@ -260,7 +277,9 @@ Response data
 ---
 ###Command 0x001C
 Description: Remove endpoint from Circle+/Stick registered nodes list.
+
 Payload data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint64|Circle+ MAC|000D6F0001A5A372|
@@ -276,6 +295,7 @@ Receive \x05\x05\x03\x03001D03A5000D6F0001A5A372000D6F0001A404A50104C2\r\n
 ```
 
 Response data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint16|Command response code|001D|
@@ -288,7 +308,9 @@ Response data:
 ---
 ###Command 0x0023 (from plugwise unleashed)
 Description: Device information request
+
 Payload data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint64|MAC of unit to receive info from|000D6F0001A59EDC|
@@ -309,6 +331,7 @@ Receive \x05\x05\x03\x03000003B100E14215\r\n
 When an Ack command response code is received with 0x00E1 as status the unit was not found.
 
 Response data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint16|Command response code|0024|
@@ -383,7 +406,9 @@ def deviceinforesponse(self, response):
 ---
 ###Command 0x0026 (from plugwise unleashed)
 Description: Retrieve circle(+) calibration data
+
 Payload data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint64|MAC of unit to get calibration data from|000D6F0001A400E2|
@@ -396,6 +421,7 @@ Receive \x05\x05\x03\x03002700F4000D6F0001A400E23F7F1C61B60D16843D2822C100000000
 ```
 
 Response data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint16|Command response code|0027|
@@ -421,7 +447,9 @@ Receive \x05\x05\x03\x030000017200DF000D6F0001A5A372A65C\r\n
 ---
 ###Command 0x0029
 Description: Unknown (has something to do with the Circle+)
+
 Payload data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint64|Circle+ MAC|000D6F0001A5A372|
@@ -434,6 +462,7 @@ Receive \x05\x05\x03\x03003A00EB000D6F0001A5A3725753140402111710A2\r\n
 ```
 
 Response data (assuming build info):
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint16|Command response code|003A|
@@ -445,7 +474,9 @@ Response data (assuming build info):
 ---
 ###Command 0x003E
 Description: Unknown
+
 Payload data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint64|Endpoint MAC address|000D6F0001A40223|
@@ -458,6 +489,7 @@ Receive \x05\x05\x03\x03003F00FE000D6F0001A402230E36040401457ABADC\r\n
 ```
 
 Response data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint16|Command response code|003F|
@@ -480,7 +512,9 @@ Receive \x05\x05\x03\x03000000FF00E5000D6F0001A402238EE1\r\n
 ---
 ###Command 0x0048 (from plugwise unleashed)
 Description: Read power buffer information
+
 Payload data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint64|Endpoint MAC|000D6F0001A40223|
@@ -495,6 +529,7 @@ Receive \x05\x05\x03\x0300490037000D6F0001A40223 110B1C5C 000007C1 110B1C98 0000
 ```
 
 Response data:
+
 |Type|Description|Data in example|
 |--|--|--|
 |Uint16|Command response code|0049|
